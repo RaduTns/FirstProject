@@ -64,6 +64,10 @@
 					<h:outputText value="#{inventory.residualValue}" />
 				</p:column>
 			</p:dataTable>
+		<h:commandLink>
+    		<p:commandButton value="Download as XLSX" ajax="false" />
+    		<p:dataExporter type="xlsx" target="table" fileName="myfile" pageOnly="true" />
+		</h:commandLink>
 		</div>
 	</h:form>
 </h:body>

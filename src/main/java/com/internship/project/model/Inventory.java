@@ -1,13 +1,19 @@
 package com.internship.project.model;
 
-import java.util.Objects;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlRootElement;
 
+@XmlRootElement(name = "inventory")
 @Entity(name = "inventory")
+//@NamedStoredProcedureQuery(
+//		name = "returnrow", 
+//		procedureName = "returnrow",
+//		parameters = {
+//				@StoredProcedureParameter(mode = ParameterMode.INOUT, type = String.class, name = "_val")
+//		}
+//)
 public class Inventory {
 	@Column(name = "costcenter")
 	private String costCenter;

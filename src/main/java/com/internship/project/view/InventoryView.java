@@ -1,26 +1,18 @@
 package com.internship.project.view;
 
 import java.io.Serializable;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
-import javax.enterprise.context.RequestScoped;
 import javax.enterprise.context.SessionScoped;
-import javax.faces.annotation.ManagedProperty;
-import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import com.internship.project.controller.*;
+
+import com.internship.project.controller.InventoryController;
 import com.internship.project.controller.dto.InventoryDTO;
-import com.internship.project.dao.InventoryDAOImpl;
-import com.internship.project.model.Inventory;
 
 @Named
 @SessionScoped
@@ -31,8 +23,7 @@ public class InventoryView implements Serializable {
 	private List<InventoryDTO> inventoryList = new ArrayList<>();
 	private List<String> costCenterList = new ArrayList<>();
 	private String selectedCostCenter;
-	
-	
+
 	public String getSelectedCostCenter() {
 		return selectedCostCenter;
 	}
@@ -40,7 +31,7 @@ public class InventoryView implements Serializable {
 	public void setSelectedCostCenter(String selectedCostCenter) {
 		this.selectedCostCenter = selectedCostCenter;
 	}
-	
+
 	@PostConstruct
 	public void init() {
 		costCenterList.add("All");
@@ -50,23 +41,23 @@ public class InventoryView implements Serializable {
 		selectedCostCenter = costCenterList.get(0);
 		inventoryList = inventoryController.getAll();
 	}
-	
+
 	public void costCenterChanged() {
-		if(selectedCostCenter.equals("All")) {
+		if (selectedCostCenter.equals("All")) {
 			inventoryList = inventoryController.getAll();
-		}
-		else {
+		} else {
 			inventoryList = inventoryController.filterCostCenter(selectedCostCenter);
 		}
 	}
-	
-	public List<InventoryDTO> filteredInventory(String value){
+
+	public List<InventoryDTO> filteredInventory(String value) {
 		return inventoryController.filterCostCenter(value);
 	}
 
 	public List<InventoryDTO> getInventoryList() {
 		return inventoryList.stream().sorted(Comparator.comparing(InventoryDTO::getInventoryNumber))
 				.collect(Collectors.toList());
+
 	}
 
 	public void setInventoryList(List<InventoryDTO> inventoryList) {
@@ -80,15 +71,13 @@ public class InventoryView implements Serializable {
 		System.out.println("Facultate: " + facultate);
 		System.out.println("Contact: " + contact);
 	}
+
 	public List<String> getCostCenterList() {
 		return costCenterList;
 	}
+
 	public void setCostCenterList(List<String> costCenterList) {
 		this.costCenterList = costCenterList;
 	}
 
-	
-
-
-	
 }
