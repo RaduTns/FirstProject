@@ -21,6 +21,18 @@ public class InventoryController {
 	@Inject
 	InventoryDAOImpl inventoryDAOImpl;
 
+	public InventoryDTO getByInvNr(String invNr) {
+		InventoryDTO returnedItemDTO = new InventoryDTO();
+		try {
+			Inventory returnedItem = inventoryDAOImpl.getByInvNr(invNr);
+			DTOMapper dtoMapper = new DTOMapper();
+			returnedItemDTO = dtoMapper.toDto(returnedItem);
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, "Error: ", e);
+		}
+		return returnedItemDTO;
+	}
+
 	public List<InventoryDTO> getAll() {
 		List<InventoryDTO> inventoriesDTO = new ArrayList<>();
 		try {
@@ -30,8 +42,8 @@ public class InventoryController {
 				inventoriesDTO.add(dtoMapper.toDto(inventory));
 
 			}
-		} catch (SQLException e) {
-			LOGGER.log(Level.SEVERE, "Eroare in functia getAll()" + e);
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, "Error: ", e);
 		}
 		return inventoriesDTO;
 	}
@@ -44,10 +56,18 @@ public class InventoryController {
 			for (Inventory inventory : filteredInventories) {
 				filteredInventoriesDTO.add(dtoMapper.toDto(inventory));
 			}
-		} catch (SQLException e) {
-			LOGGER.log(Level.SEVERE, "Eroare in functia filterCostCenter()" + e);
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, "Error: ", e);
 		}
 		return filteredInventoriesDTO;
 	}
 
+	public void deleteByInvNr(String invNr) {
+		try {
+			Inventory returnedItem = inventoryDAOImpl.getByInvNr(invNr);
+			inventoryDAOImpl.delete(returnedItem);
+		} catch (SQLException e) {
+			LOGGER.log(Level.SEVERE, "Error when deleting an item by its inventory number " + invNr + ": ", e);
+		}
+	}
 }

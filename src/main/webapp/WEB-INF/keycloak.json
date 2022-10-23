@@ -1,0 +1,11 @@
+{
+  "realm": "KeycloakIntegrationTomcat",
+  "auth-server-url": "http://localhost:8080/",
+  "ssl-required": "external",
+  "resource": "admin-tomcat",
+  "credentials": {
+    "secret": "FucQuigQpLQq3vuNvesGAuefT9Y7LPtU"
+  },
+  "confidential-port": 0,
+  "use-resource-role-mappings": true
+}

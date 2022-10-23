@@ -18,6 +18,7 @@ import com.internship.project.controller.dto.InventoryDTO;
 @SessionScoped
 public class InventoryView implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	@Inject
 	InventoryController inventoryController;
 	private List<InventoryDTO> inventoryList = new ArrayList<>();
