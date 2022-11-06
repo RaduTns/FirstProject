@@ -1,10 +1,9 @@
 package com.internship.project.api;
 
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -13,7 +12,6 @@ import javax.ws.rs.core.Response;
 
 import com.internship.project.controller.InventoryController;
 import com.internship.project.controller.dto.InventoryDTO;
-import com.internship.project.model.Inventory;
 
 @Path("/api")
 public class REST {
@@ -24,20 +22,23 @@ public class REST {
 	@GET
 	@Path("/inventoryItem/{inventoryNumber}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public InventoryDTO getById(@PathParam(value = "inventoryNumber") String id) {
-		Response response;
-		return inventoryController.getByInvNr(id); // de schimbat in Response
+	public Response getById(@PathParam(value = "inventoryNumber") String id) {
+
+		if (inventoryController.getByInvNr(id).getInventoryNumber() == null)
+			return Response.status(404).entity(null).build();
+		else
+			return Response.status(200).entity(inventoryController.getByInvNr(id)).build();
 	}
 
 	@GET
 	@Path("/inventoryItem")
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<InventoryDTO> getInventoryItems() {
-		return inventoryController.getAll();
-	}
-
-	public void update(Inventory inventoryItem) {
-
+	public Response getInventoryItems() {
+		java.util.List<InventoryDTO> inventoryItems = inventoryController.getAll();
+		if (inventoryItems.isEmpty())
+			return Response.status(404).entity(null).build();
+		else
+			return Response.status(200).entity(inventoryController.getAll()).build();
 	}
 
 	@DELETE
@@ -45,5 +46,18 @@ public class REST {
 	public void delete(@PathParam(value = "inventoryNumber") String id) {
 
 		inventoryController.deleteByInvNr(id);
+	}
+
+	@POST
+	@Path("/inventoryItem")
+	public void create(String string) {
+		inventoryController.addProduct(string);
+	}
+
+	@GET
+	@Path("/test")
+	@Produces(MediaType.APPLICATION_JSON)
+	public void test() {
+		inventoryController.getTableView();
 	}
 }
