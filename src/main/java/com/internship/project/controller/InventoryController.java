@@ -7,6 +7,9 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -24,14 +27,17 @@ public class InventoryController {
 	@Inject
 	InventoryDAOImpl inventoryDAOImpl;
 
+	private static final Logger LOG = LogManager.getLogger(InventoryController.class);
+
 	public InventoryDTO getByInvNr(String invNr) {
 		InventoryDTO returnedItemDTO = new InventoryDTO();
 		try {
 			Inventory returnedItem = inventoryDAOImpl.getByInvNr(invNr);
 			DTOMapper dtoMapper = new DTOMapper();
 			returnedItemDTO = dtoMapper.toDto(returnedItem);
+			LOG.info("Successfully retrieved an item based on its inventory number");
 		} catch (Exception e) {
-			// LOG.error("Error: ", e);
+			LOG.error("Error when retrieving an item based on its inventory number: ", e);
 		}
 		return returnedItemDTO;
 	}
@@ -43,10 +49,10 @@ public class InventoryController {
 			DTOMapper dtoMapper = new DTOMapper();
 			for (Inventory inventory : inventories) {
 				inventoriesDTO.add(dtoMapper.toDto(inventory));
-
 			}
+			LOG.info("Successfully retrieved all items in DB");
 		} catch (Exception e) {
-			// LOGGER.log(Level.SEVERE, "Error: ", e);
+			LOG.error("Error when retrieving all items from DB: ", e);
 		}
 		return inventoriesDTO;
 	}
@@ -87,6 +93,21 @@ public class InventoryController {
 			// LOGGER.log(Level.SEVERE, "Error when adding a new instance to DataBase");
 		}
 
+	}
+
+	public String getInvNrFromJson(String string) {
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		Inventory inventory = new Inventory();
+		try {
+			JsonElement jelem = gson.fromJson(string, JsonElement.class);
+			JsonObject jobj = jelem.getAsJsonObject();
+			inventory = gson.fromJson(jelem, Inventory.class);
+			return inventory.getInventoryNumber();
+
+		} catch (Error e) {
+			// LOGGER.log(Level.SEVERE, "Error when adding a new instance to DataBase");
+			return "";
+		}
 	}
 
 	public List<InventoryDTO> getTableView() {

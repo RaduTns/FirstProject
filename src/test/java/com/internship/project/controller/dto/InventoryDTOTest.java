@@ -23,6 +23,12 @@ class InventoryDTOTest {
 		inventoryDTO.setDescription("dsadsadasdas");
 		Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 		System.out.println(gson.toJson(inventoryDTO));
+
+	}
+
+	@Test
+	public void test1() {
+
 	}
 
 }
