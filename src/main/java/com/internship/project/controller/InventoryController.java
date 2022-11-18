@@ -13,7 +13,6 @@ import org.apache.logging.log4j.Logger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.internship.project.controller.dto.DTOMapper;
 import com.internship.project.controller.dto.InventoryDTO;
 import com.internship.project.dao.InventoryDAOImpl;
@@ -86,7 +85,6 @@ public class InventoryController {
 		Inventory inventory = new Inventory();
 		try {
 			JsonElement jelem = gson.fromJson(string, JsonElement.class);
-			JsonObject jobj = jelem.getAsJsonObject();
 			inventory = gson.fromJson(jelem, Inventory.class);
 			inventoryDAOImpl.save(inventory);
 		} catch (SQLException e) {
@@ -100,7 +98,6 @@ public class InventoryController {
 		Inventory inventory = new Inventory();
 		try {
 			JsonElement jelem = gson.fromJson(string, JsonElement.class);
-			JsonObject jobj = jelem.getAsJsonObject();
 			inventory = gson.fromJson(jelem, Inventory.class);
 			return inventory.getInventoryNumber();
 

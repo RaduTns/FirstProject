@@ -49,4 +49,5 @@ public class KeycloakUtil {
 	public static String getClientId() {
 		return "inventory-client";
 	}
+
 }
