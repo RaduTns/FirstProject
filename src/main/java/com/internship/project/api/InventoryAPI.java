@@ -17,8 +17,17 @@ import org.keycloak.common.VerificationException;
 import com.internship.project.controller.InventoryController;
 import com.internship.project.controller.dto.InventoryDTO;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.SwaggerDefinition;
+import io.swagger.annotations.Tag;
+
 @Path("/api")
-public class REST {
+@Api(tags = { "inventory" })
+@SwaggerDefinition(tags = { @Tag(name = "inventory") })
+@Produces(MediaType.APPLICATION_JSON)
+
+public class InventoryAPI {
 
 	@Inject
 	InventoryController inventoryController;
@@ -28,15 +37,21 @@ public class REST {
 
 	KeycloakUtil keycloakUtils;
 
+	@ApiOperation(value = "")
 	@GET
-	@Path("/inventoryItem/{inventoryNumber}")
+	@Path("/inventoryItem/{inventoryNumber}/{authorization}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getById(@PathParam(value = "inventoryNumber") String id) throws VerificationException {
-		String headerParam = httpHeaders.getRequestHeader(HttpHeaders.AUTHORIZATION).get(0);
+	public Response getById(@PathParam(value = "inventoryNumber") String id,
+			@PathParam(value = "authorization") String auth, @Context final HttpHeaders httpHeaders)
+			throws VerificationException {
+		// String headerParam =
+		// httpHeaders.getRequestHeader(HttpHeaders.AUTHORIZATION).get(0);
+		String headerParam = auth;
+		System.out.print("***********" + headerParam);
 		String[] splitHeader = headerParam.split(" ", 2);
 		String token = splitHeader[1];
-		if (AuthorizationUtil.isIssued(token) == true) {
-			if (AuthorizationUtil.isAuthorized(token) == true) {
+		if (AuthorizationUtil.isIssued(token)) {
+			if (AuthorizationUtil.isAuthorized(token)) {
 				if (inventoryController.getByInvNr(id).getInventoryNumber() == null)
 					return Response.status(404).entity(null).build();
 				else
@@ -49,30 +64,32 @@ public class REST {
 		}
 	}
 
+	@ApiOperation(value = "Retrieve all items")
 	@GET
 	@Path("/inventoryItem")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getInventoryItems() throws VerificationException {
 
-		String headerParam = httpHeaders.getRequestHeader(HttpHeaders.AUTHORIZATION).get(0);
-		String[] splitHeader = headerParam.split(" ", 2);
-		String token = splitHeader[1];
+//		String headerParam = httpHeaders.getRequestHeader(HttpHeaders.AUTHORIZATION).get(0);
+//		String[] splitHeader = headerParam.split(" ", 2);
+//		String token = splitHeader[1];
 		java.util.List<InventoryDTO> inventoryItems = inventoryController.getAll();
-		if (AuthorizationUtil.isIssued(token) == true) {
-			if (AuthorizationUtil.isAuthorized(token) == true) {
-				if (inventoryItems.isEmpty())
-					return Response.status(404).entity(null).build();
-				else
-					return Response.status(200).entity(inventoryController.getAll()).build();
-			} else {
-				return Response.status(401).entity(null).build();
-			}
-		} else {
-			return Response.status(401).entity(null).build();
-		}
+//		if (AuthorizationUtil.isIssued(token) == true) {
+//			if (AuthorizationUtil.isAuthorized(token) == true) {
+//				if (inventoryItems.isEmpty())
+//					return Response.status(404).entity(null).build();
+//				else
+		return Response.status(200).entity(inventoryController.getAll()).build();
+//			} else {
+//				return Response.status(401).entity(null).build();
+//			}
+//		} else {
+//			return Response.status(401).entity(null).build();
+//		}
 
 	}
 
+	@ApiOperation(value = "")
 	@DELETE
 	@Path("/inventoryItem/{inventoryNumber}")
 	public Response delete(@PathParam(value = "inventoryNumber") String id) throws VerificationException {
@@ -98,6 +115,7 @@ public class REST {
 
 	}
 
+	@ApiOperation(value = "")
 	@POST
 	@Path("/inventoryItem")
 	public Response create(String string) throws VerificationException {
