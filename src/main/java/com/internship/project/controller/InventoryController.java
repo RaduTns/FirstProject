@@ -16,6 +16,7 @@ import com.google.gson.JsonElement;
 import com.internship.project.controller.dto.DTOMapper;
 import com.internship.project.controller.dto.InventoryDTO;
 import com.internship.project.dao.InventoryDAOImpl;
+import com.internship.project.exceptions.CustomException;
 import com.internship.project.model.Inventory;
 
 @Stateless
@@ -30,13 +31,24 @@ public class InventoryController {
 
 	public InventoryDTO getByInvNr(String invNr) {
 		InventoryDTO returnedItemDTO = new InventoryDTO();
+		boolean bool = true;
 		try {
-			Inventory returnedItem = inventoryDAOImpl.getByInvNr(invNr);
-			DTOMapper dtoMapper = new DTOMapper();
-			returnedItemDTO = dtoMapper.toDto(returnedItem);
-			LOG.info("Successfully retrieved an item based on its inventory number");
-		} catch (Exception e) {
-			LOG.error("Error when retrieving an item based on its inventory number: ", e);
+			for (int i = 0; i < invNr.length(); i++) {
+				if (!Character.isDigit(invNr.charAt(i))) {
+					bool = false;
+					break;
+				}
+			}
+			if (bool == true) {
+				Inventory returnedItem = inventoryDAOImpl.getByInvNr(invNr);
+				DTOMapper dtoMapper = new DTOMapper();
+				returnedItemDTO = dtoMapper.toDto(returnedItem);
+				LOG.info("Successfully retrieved an item based on its inventory number");
+			} else {
+				throw new CustomException("Wrong type Exception");
+			}
+		} catch (CustomException e) {
+			LOG.error("Error when retrieving an item based on its inventory number: " + e.getMessage());
 		}
 		return returnedItemDTO;
 	}
@@ -74,9 +86,9 @@ public class InventoryController {
 		try {
 			Inventory returnedItem = inventoryDAOImpl.getByInvNr(invNr);
 			inventoryDAOImpl.delete(returnedItem);
+			LOG.info("Item deleted succesfully");
 		} catch (SQLException e) {
-			// LOGGER.log(Level.SEVERE, "Error when deleting an item by its inventory number
-			// " + invNr + ": ", e);
+			LOG.error("Error when trying to delete an item: ", e);
 		}
 	}
 
@@ -87,8 +99,9 @@ public class InventoryController {
 			JsonElement jelem = gson.fromJson(string, JsonElement.class);
 			inventory = gson.fromJson(jelem, Inventory.class);
 			inventoryDAOImpl.save(inventory);
+			LOG.info("Item created succesfully");
 		} catch (SQLException e) {
-			// LOGGER.log(Level.SEVERE, "Error when adding a new instance to DataBase");
+			LOG.error("Error when trying to create an item: ", e);
 		}
 
 	}

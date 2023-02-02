@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 
+//authorizations = { @Authorization(value = "basicAuth") } in @api
 @Path("/api")
 @Api(tags = { "inventory" })
 @SwaggerDefinition(tags = { @Tag(name = "inventory") })
@@ -39,14 +40,10 @@ public class InventoryAPI {
 
 	@ApiOperation(value = "")
 	@GET
-	@Path("/inventoryItem/{inventoryNumber}/{authorization}")
+	@Path("/inventoryItem/{inventoryNumber}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getById(@PathParam(value = "inventoryNumber") String id,
-			@PathParam(value = "authorization") String auth, @Context final HttpHeaders httpHeaders)
-			throws VerificationException {
-		// String headerParam =
-		// httpHeaders.getRequestHeader(HttpHeaders.AUTHORIZATION).get(0);
-		String headerParam = auth;
+	public Response getById(@PathParam(value = "inventoryNumber") String id) throws VerificationException {
+		String headerParam = httpHeaders.getRequestHeader(HttpHeaders.AUTHORIZATION).get(0);
 		System.out.print("***********" + headerParam);
 		String[] splitHeader = headerParam.split(" ", 2);
 		String token = splitHeader[1];
@@ -70,22 +67,22 @@ public class InventoryAPI {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getInventoryItems() throws VerificationException {
 
-//		String headerParam = httpHeaders.getRequestHeader(HttpHeaders.AUTHORIZATION).get(0);
-//		String[] splitHeader = headerParam.split(" ", 2);
-//		String token = splitHeader[1];
+		String headerParam = httpHeaders.getRequestHeader(HttpHeaders.AUTHORIZATION).get(0);
+		String[] splitHeader = headerParam.split(" ", 2);
+		String token = splitHeader[1];
 		java.util.List<InventoryDTO> inventoryItems = inventoryController.getAll();
-//		if (AuthorizationUtil.isIssued(token) == true) {
-//			if (AuthorizationUtil.isAuthorized(token) == true) {
-//				if (inventoryItems.isEmpty())
-//					return Response.status(404).entity(null).build();
-//				else
-		return Response.status(200).entity(inventoryController.getAll()).build();
-//			} else {
-//				return Response.status(401).entity(null).build();
-//			}
-//		} else {
-//			return Response.status(401).entity(null).build();
-//		}
+		if (AuthorizationUtil.isIssued(token) == true) {
+			if (AuthorizationUtil.isAuthorized(token) == true) {
+				if (inventoryItems.isEmpty())
+					return Response.status(200).entity(null).build();
+				else
+					return Response.status(200).entity(inventoryController.getAll()).build();
+			} else {
+				return Response.status(401).entity(null).build();
+			}
+		} else {
+			return Response.status(401).entity(null).build();
+		}
 
 	}
 
@@ -130,7 +127,7 @@ public class InventoryAPI {
 				if (inventory.getInventoryNumber() == null) {
 					inventoryController.deleteByInvNr(inventoryNumber);
 					inventoryController.addProduct(string);
-					return Response.status(201).entity(null).build();
+					return Response.status(200).entity(null).build();
 				} else
 					return Response.status(405).entity(null).build();
 			} else {

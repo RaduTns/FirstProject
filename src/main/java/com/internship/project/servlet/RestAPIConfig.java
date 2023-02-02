@@ -1,17 +1,14 @@
 package com.internship.project.servlet;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
-
-import com.internship.project.api.InventoryAPI;
 
 import io.swagger.jaxrs.config.BeanConfig;
 
-@ApplicationPath("api")
+//@ApplicationPath("api/")
 public class RestAPIConfig extends Application {
+
+	private static final String X_HEADER_API_KEY = null;
+	private static final String SECURITY_DEF_FOR_API_KEY = null;
 
 	public RestAPIConfig() {
 
@@ -22,13 +19,17 @@ public class RestAPIConfig extends Application {
 		beanConfig.setBasePath("/inventory/api");
 		beanConfig.setResourcePackage("com.internship.project.api");
 		beanConfig.setScan(true);
+
+//		Swagger swagger = beanConfig.getSwagger();
+//		swagger.securityDefinition("basicAuth", new BasicAuthDefinition());
+//		new SwaggerContextService().updateSwagger(swagger);
 	}
 
-	@Override
-	public Set<Class<?>> getClasses() {
-		Set<Class<?>> clazzes = new HashSet<>();
-		clazzes.add(InventoryAPI.class);
-		return clazzes;
-	}
+//	@Override
+//	public Set<Class<?>> getClasses() {
+//		Set<Class<?>> clazzes = new HashSet<>();
+//		clazzes.add(InventoryAPI.class);
+//		return clazzes;
+//	}
 
 }

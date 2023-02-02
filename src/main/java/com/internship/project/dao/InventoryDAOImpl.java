@@ -11,6 +11,7 @@ import javax.persistence.PersistenceContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.internship.project.exceptions.CustomException;
 import com.internship.project.model.Inventory;
 
 public class InventoryDAOImpl implements InventoryDAO {
@@ -23,16 +24,13 @@ public class InventoryDAOImpl implements InventoryDAO {
 	public Inventory getByInvNr(String inventorynumber) {
 
 		Inventory inventory;
-		try {
+		if (em.find(Inventory.class, inventorynumber) != null) {
+			LOG.info("Successfully retrieved the DB instance");
 			inventory = em.find(Inventory.class, inventorynumber);
-			if (inventory.getInventoryNumber() != null)
-				LOG.info("Successfully retrieved the DB instance");
 			return inventory;
+		} else {
+			throw new CustomException("Inventory item with inventoryNumber " + inventorynumber + " not found");
 
-		} catch (Exception e) {
-			inventory = null;
-			LOG.error("Error when trying to retrieve a DB instance by Inventory Number: ", e);
-			return inventory;
 		}
 
 	}
@@ -51,7 +49,8 @@ public class InventoryDAOImpl implements InventoryDAO {
 			inventories = castList(Inventory.class, em.createQuery("Select f from inventory f").getResultList());
 			LOG.info("Successfully retrieved all DB instances");
 		} catch (Exception e) {
-			LOG.error("Error when trying to retrieve all DB Instances: {}", e);
+			if (e instanceof SQLException)
+				LOG.error("Error when trying to retrieve all DB Instances: ", e);
 		}
 
 		return inventories;
