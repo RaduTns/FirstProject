@@ -13,6 +13,7 @@ import javax.inject.Named;
 
 import com.internship.project.controller.InventoryController;
 import com.internship.project.controller.dto.InventoryDTO;
+import com.internship.project.exceptions.GetAllException;
 
 @Named
 @SessionScoped
@@ -40,12 +41,20 @@ public class InventoryView implements Serializable {
 		costCenterList.add("A10000738");
 		costCenterList.add("A10000739");
 		selectedCostCenter = costCenterList.get(0);
-		inventoryList = inventoryController.getAll();
+		try {
+			inventoryList = inventoryController.getAll();
+		} catch (GetAllException e) {
+			inventoryList = null;
+		}
 	}
 
 	public void costCenterChanged() {
 		if (selectedCostCenter.equals("All")) {
-			inventoryList = inventoryController.getAll();
+			try {
+				inventoryList = inventoryController.getAll();
+			} catch (GetAllException e) {
+				inventoryList = null;
+			}
 		} else {
 			inventoryList = inventoryController.filterCostCenter(selectedCostCenter);
 		}
@@ -56,8 +65,12 @@ public class InventoryView implements Serializable {
 	}
 
 	public List<InventoryDTO> getInventoryList() {
-		return inventoryList.stream().sorted(Comparator.comparing(InventoryDTO::getInventoryNumber))
-				.collect(Collectors.toList());
+		try {
+			return inventoryList.stream().sorted(Comparator.comparing(InventoryDTO::getInventoryNumber))
+					.collect(Collectors.toList());
+		} catch (NullPointerException e) {
+			return inventoryList;
+		}
 
 	}
 

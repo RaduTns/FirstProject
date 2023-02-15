@@ -1,11 +1,11 @@
 package com.internship.project.exceptions;
 
-public class CustomException extends RuntimeException {
+public class GetByInvNrException extends RuntimeException {
 
 	private static final long serialVersionUID = 4475081131685835631L;
 	String message;
 
-	public CustomException(String message) {
+	public GetByInvNrException(String message) {
 		super(message);
 		this.message = message;
 	}

@@ -17,8 +17,9 @@
 				process="@this" />
 		</p:selectOneMenu>
 		<div class="table">
+		<h:outputText value="Table is empty!" rendered="#{empty inventoryView.inventoryList}" />
 			<p:dataTable id="table" var="inventory"
-				value="#{inventoryView.inventoryList}">
+				value="#{inventoryView.inventoryList}" rendered="#{not empty inventoryView.inventoryList}">
 				<p:column headerText="Cost Center"
 					filterBy="#{inventory.costCenter}" filterMatchMode="contains">
 					<h:outputText value="#{inventory.costCenter}" />

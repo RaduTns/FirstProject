@@ -16,6 +16,11 @@ import org.keycloak.common.VerificationException;
 
 import com.internship.project.controller.InventoryController;
 import com.internship.project.controller.dto.InventoryDTO;
+import com.internship.project.exceptions.AddProductException;
+import com.internship.project.exceptions.DeleteByInvNrException;
+import com.internship.project.exceptions.GetAllException;
+import com.internship.project.exceptions.GetByInvNrException;
+import com.internship.project.exceptions.NotFoundException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -47,15 +52,18 @@ public class InventoryAPI {
 		System.out.print("***********" + headerParam);
 		String[] splitHeader = headerParam.split(" ", 2);
 		String token = splitHeader[1];
-		if (AuthorizationUtil.isIssued(token)) {
-			if (AuthorizationUtil.isAuthorized(token)) {
-				if (inventoryController.getByInvNr(id).getInventoryNumber() == null)
-					return Response.status(404).entity(null).build();
+		InventoryDTO inventory = null;
+		if (AuthorizationUtil.isIssued(token) && AuthorizationUtil.isAuthorized(token)) {
+			try {
+				inventory = inventoryController.getByInvNr(id);
+				if (inventory != null)
+					return Response.status(200).entity(inventory).build();
 				else
-					return Response.status(200).entity(inventoryController.getByInvNr(id)).build();
-			} else {
-				return Response.status(401).entity(null).build();
+					return Response.status(404).build();
+			} catch (GetByInvNrException e) {
+				return Response.status(500).build();
 			}
+
 		} else {
 			return Response.status(401).entity(null).build();
 		}
@@ -70,46 +78,43 @@ public class InventoryAPI {
 		String headerParam = httpHeaders.getRequestHeader(HttpHeaders.AUTHORIZATION).get(0);
 		String[] splitHeader = headerParam.split(" ", 2);
 		String token = splitHeader[1];
-		java.util.List<InventoryDTO> inventoryItems = inventoryController.getAll();
-		if (AuthorizationUtil.isIssued(token) == true) {
-			if (AuthorizationUtil.isAuthorized(token) == true) {
-				if (inventoryItems.isEmpty())
-					return Response.status(200).entity(null).build();
-				else
-					return Response.status(200).entity(inventoryController.getAll()).build();
-			} else {
-				return Response.status(401).entity(null).build();
+		java.util.List<InventoryDTO> inventoryItems = null;
+		if (AuthorizationUtil.isAuthorized(token) == true && AuthorizationUtil.isIssued(token) == true) {
+			try {
+				inventoryItems = inventoryController.getAll();
+				return Response.status(200).entity(inventoryItems).build();
+			} catch (GetAllException e) {
+				return Response.status(500).build();
 			}
 		} else {
 			return Response.status(401).entity(null).build();
 		}
-
 	}
 
 	@ApiOperation(value = "")
 	@DELETE
 	@Path("/inventoryItem/{inventoryNumber}")
-	public Response delete(@PathParam(value = "inventoryNumber") String id) throws VerificationException {
+	public Response delete(@PathParam(value = "inventoryNumber") String id)
+			throws VerificationException, NotFoundException {
 
 		String headerParam = httpHeaders.getRequestHeader(HttpHeaders.AUTHORIZATION).get(0);
 		String[] splitHeader = headerParam.split(" ", 2);
 		String token = splitHeader[1];
 		InventoryDTO inventory = inventoryController.getByInvNr(id);
-		if (AuthorizationUtil.isIssued(token) == true) {
-			if (AuthorizationUtil.isAuthorized(token) == true) {
-				if (inventory.getInventoryNumber() == null)
-					return Response.status(404).entity(null).build();
-				else {
+		if (AuthorizationUtil.isIssued(token) == true && AuthorizationUtil.isAuthorized(token) == true) {
+			if (inventory.getInventoryNumber() == null)
+				return Response.status(404).entity(null).build();
+			else {
+				try {
 					inventoryController.deleteByInvNr(id);
-					return Response.status(204).entity(null).build();
+				} catch (DeleteByInvNrException e) {
+					return Response.status(500).build();
 				}
-			} else {
-				return Response.status(401).entity(null).build();
+				return Response.status(204).entity(null).build();
 			}
 		} else {
 			return Response.status(401).entity(null).build();
 		}
-
 	}
 
 	@ApiOperation(value = "")
@@ -122,21 +127,19 @@ public class InventoryAPI {
 		String token = splitHeader[1];
 		String inventoryNumber = inventoryController.getInvNrFromJson(string);
 		InventoryDTO inventory = inventoryController.getByInvNr(inventoryNumber);
-		if (AuthorizationUtil.isIssued(token) == true) {
-			if (AuthorizationUtil.isAuthorized(token) == true) {
-				if (inventory.getInventoryNumber() == null) {
-					inventoryController.deleteByInvNr(inventoryNumber);
+		if (AuthorizationUtil.isIssued(token) == true && AuthorizationUtil.isAuthorized(token) == true) {
+			if (inventory.getInventoryNumber() == null) {
+				try {
 					inventoryController.addProduct(string);
 					return Response.status(200).entity(null).build();
-				} else
-					return Response.status(405).entity(null).build();
-			} else {
-				return Response.status(401).entity(null).build();
-			}
+				} catch (AddProductException e) {
+					return Response.status(500).build();
+				}
+			} else
+				return Response.status(405).entity(null).build();
 		} else {
 			return Response.status(401).entity(null).build();
 		}
-
 	}
 
 	@GET

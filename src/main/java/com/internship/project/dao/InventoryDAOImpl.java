@@ -11,7 +11,7 @@ import javax.persistence.PersistenceContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.internship.project.exceptions.CustomException;
+import com.internship.project.exceptions.GetByInvNrException;
 import com.internship.project.model.Inventory;
 
 public class InventoryDAOImpl implements InventoryDAO {
@@ -29,7 +29,7 @@ public class InventoryDAOImpl implements InventoryDAO {
 			inventory = em.find(Inventory.class, inventorynumber);
 			return inventory;
 		} else {
-			throw new CustomException("Inventory item with inventoryNumber " + inventorynumber + " not found");
+			throw new GetByInvNrException("Inventory item with inventoryNumber " + inventorynumber + " not found");
 
 		}
 
