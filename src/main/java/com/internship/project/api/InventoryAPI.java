@@ -49,24 +49,23 @@ public class InventoryAPI {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getById(@PathParam(value = "inventoryNumber") String id) throws VerificationException {
 		String headerParam = httpHeaders.getRequestHeader(HttpHeaders.AUTHORIZATION).get(0);
-		System.out.print("***********" + headerParam);
-		String[] splitHeader = headerParam.split(" ", 2);
-		String token = splitHeader[1];
 		InventoryDTO inventory = null;
-		if (AuthorizationUtil.isIssued(token) && AuthorizationUtil.isAuthorized(token)) {
+		Response response = null;
+		if (AuthorizationUtil.isAuthorized(headerParam)) {
 			try {
 				inventory = inventoryController.getByInvNr(id);
 				if (inventory != null)
-					return Response.status(200).entity(inventory).build();
+					response = Response.status(200).entity(inventory).build();
 				else
-					return Response.status(404).build();
+					response = Response.status(404).build();
 			} catch (GetByInvNrException e) {
-				return Response.status(500).build();
+				response = Response.status(500).build();
 			}
 
 		} else {
-			return Response.status(401).entity(null).build();
+			response = Response.status(401).entity(null).build();
 		}
+		return response;
 	}
 
 	@ApiOperation(value = "Retrieve all items")
@@ -76,10 +75,8 @@ public class InventoryAPI {
 	public Response getInventoryItems() throws VerificationException {
 
 		String headerParam = httpHeaders.getRequestHeader(HttpHeaders.AUTHORIZATION).get(0);
-		String[] splitHeader = headerParam.split(" ", 2);
-		String token = splitHeader[1];
 		java.util.List<InventoryDTO> inventoryItems = null;
-		if (AuthorizationUtil.isAuthorized(token) == true && AuthorizationUtil.isIssued(token) == true) {
+		if (AuthorizationUtil.isAuthorized(headerParam) == true) {
 			try {
 				inventoryItems = inventoryController.getAll();
 				return Response.status(200).entity(inventoryItems).build();
@@ -98,10 +95,8 @@ public class InventoryAPI {
 			throws VerificationException, NotFoundException {
 
 		String headerParam = httpHeaders.getRequestHeader(HttpHeaders.AUTHORIZATION).get(0);
-		String[] splitHeader = headerParam.split(" ", 2);
-		String token = splitHeader[1];
 		InventoryDTO inventory = inventoryController.getByInvNr(id);
-		if (AuthorizationUtil.isIssued(token) == true && AuthorizationUtil.isAuthorized(token) == true) {
+		if (AuthorizationUtil.isAuthorized(headerParam) == true) {
 			if (inventory.getInventoryNumber() == null)
 				return Response.status(404).entity(null).build();
 			else {
@@ -123,11 +118,9 @@ public class InventoryAPI {
 	public Response create(String string) throws VerificationException {
 
 		String headerParam = httpHeaders.getRequestHeader(HttpHeaders.AUTHORIZATION).get(0);
-		String[] splitHeader = headerParam.split(" ", 2);
-		String token = splitHeader[1];
 		String inventoryNumber = inventoryController.getInvNrFromJson(string);
 		InventoryDTO inventory = inventoryController.getByInvNr(inventoryNumber);
-		if (AuthorizationUtil.isIssued(token) == true && AuthorizationUtil.isAuthorized(token) == true) {
+		if (AuthorizationUtil.isAuthorized(headerParam) == true) {
 			if (inventory.getInventoryNumber() == null) {
 				try {
 					inventoryController.addProduct(string);
